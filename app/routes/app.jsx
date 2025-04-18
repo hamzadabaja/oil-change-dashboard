@@ -1,4 +1,3 @@
-// app.jsx
 import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
@@ -20,11 +19,10 @@ export default function App() {
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
-        <Link to="/app/inventory">Inventory</Link>
-        <Link to="/app/service">Service</Link>
-        <Link to="/app/invoices">Invoices</Link>
-        <Link to="/app/service-pricing">Service Pricing</Link>
-        <Link to="/app/wholesale">Wholesale</Link>
+        <Link to="/app" rel="home">
+          Home
+        </Link>
+        <Link to="/app/additional">Additional page</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
