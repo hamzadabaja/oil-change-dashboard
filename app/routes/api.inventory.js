@@ -1,39 +1,39 @@
 // app/routes/api.inventory.js
-import { authenticate } from "~/shopify.server";
 import { json } from "@remix-run/node";
+import { authenticate } from "../shopify.server";
 
-export const loader = async ({ request }) => {
-  const { admin, session } = await authenticate.admin(request);
+export async function loader({ request }) {
+  const { admin } = await authenticate.admin(request);
+  const session = await authenticate.admin(request);
 
-  const customerId = session?.onlineAccessInfo?.associated_user?.id || session?.id;
-  if (!customerId) {
-    return json({ error: "Missing customer ID" }, { status: 400 });
-  }
-
-  const response = await admin.graphql(`
-    {
-      metaobjects(type: "customer_inventory", first: 100, query: "customer_id:'${customerId}'") {
-        nodes {
-          id
-          fields {
-            key
-            value
+  const response = await admin.graphql(
+    `#graphql
+      {
+        metaobjects(type: "customer_inventory", first: 100) {
+          edges {
+            node {
+              id
+              fields {
+                key
+                value
+              }
+            }
           }
         }
       }
-    }
-  `);
+    `
+  );
 
-  const jsonData = await response.json();
+  const data = await response.json();
+  const inventory = data.data.metaobjects.edges
+    .map((edge) => {
+      const obj = {};
+      edge.node.fields.forEach((f) => {
+        obj[f.key] = f.value;
+      });
+      return obj;
+    })
+    .filter((item) => item.customer_id === session.session.id);
 
-  const parsed = jsonData.data.metaobjects.nodes.map((node) => {
-    const out = {};
-    node.fields.forEach((field) => {
-      out[field.key] = field.value;
-    });
-    out.id = node.id;
-    return out;
-  });
-
-  return json(parsed);
-};
+  return json(inventory);
+}

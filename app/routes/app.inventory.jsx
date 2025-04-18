@@ -11,7 +11,7 @@ import {
 } from "@shopify/polaris";
 import { useState } from "react";
 import { json, useLoaderData, useFetcher } from "@remix-run/react";
-import { authenticate } from "~/shopify.server";
+import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
   const { admin, session } = await authenticate.admin(request);
